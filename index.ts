@@ -117,6 +117,7 @@ async function run() {
 
 
 
+        
         const result =
         await usersCollection.insertOne(user);
 
@@ -208,16 +209,6 @@ async function run() {
     });
 
 
-
-
-
-
-
-    // ==========================
-    // Get All Users
-    // ==========================
-
-
     app.get(
       "/users",
       async(req:Request,res:Response)=>{
@@ -251,18 +242,6 @@ async function run() {
 
 
     });
-
-
-
-
-
-
-
-
-    // ==========================
-    // Add Job
-    // ==========================
-
 
     app.post(
       "/jobs",
@@ -323,17 +302,6 @@ async function run() {
 
     });
 
-
-
-
-
-
-
-    // ==========================
-    // Get All Jobs
-    // ==========================
-
-
     app.get(
       "/jobs",
       async(req:Request,res:Response)=>{
@@ -381,59 +349,27 @@ async function run() {
 
 
 
+app.get(
+  "/jobs/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id as string;
 
+      const job = await jobsCollection.findOne({
+        _id: new ObjectId(id),
+      });
 
+      res.send(job);
+    } catch (error) {
+      console.log(error);
 
-    // ==========================
-    // Get Single Job
-    // ==========================
-
-
-    app.get(
-      "/jobs/:id",
-      async(req:Request,res:Response)=>{
-
-
-      try{
-
-
-        const id = req.params.id;
-
-
-
-        const job =
-        await jobsCollection.findOne({
-
-          _id:new ObjectId(id)
-
-        });
-
-
-
-        res.send(job);
-
-
-
-      }
-      catch(error){
-
-
-        res.status(500).send({
-
-          success:false,
-
-          message:"Job Not Found"
-
-        });
-
-
-
-      }
-
-
-    });
-
-
+      res.status(500).send({
+        success: false,
+        message: "Job Not Found",
+      });
+    }
+  }
+);
 
 
 
