@@ -38,10 +38,6 @@ const client = new MongoClient(uri, {
 
 });
 
-
-
-
-
 async function run() {
 
 
@@ -54,7 +50,7 @@ async function run() {
 
   const jobsCollection = db.collection("jobs");
 
-
+const applicationsCollection = db.collection("applications");
 
   try {
 
@@ -75,34 +71,18 @@ async function run() {
       "✅ Pinged your deployment. Successfully connected to MongoDB!"
     );
 
-
-
-
-    // ==========================
-    // Create User
-    // ==========================
-
-
     app.post(
       "/users",
       async(req:Request,res:Response)=>{
 
-
       try{
-
-
         const user = req.body;
-
-
 
         const existingUser =
         await usersCollection.findOne({
           email:user.email
         });
-
-
-
-        if(existingUser){
+   if(existingUser){
 
           return res.send({
 
@@ -113,11 +93,6 @@ async function run() {
           });
 
         }
-
-
-
-
-        
         const result =
         await usersCollection.insertOne(user);
 
@@ -132,9 +107,6 @@ async function run() {
           insertedId:result.insertedId
 
         });
-
-
-
       }
       catch(error){
 
@@ -149,64 +121,10 @@ async function run() {
           message:"Internal Server Error"
 
         });
-
-
       }
-
-
     });
 
-
-
-
-
-
-
-    // ==========================
-    // Get User By Email
-    // ==========================
-
-
-    app.get(
-      "/users/:email",
-      async(req:Request,res:Response)=>{
-
-
-      try{
-
-
-        const email = req.params.email;
-
-
-
-        const user =
-        await usersCollection.findOne({
-          email
-        });
-
-
-
-        res.send(user);
-
-
-
-      }
-      catch(error){
-
-
-        res.status(500).send({
-
-          success:false,
-
-          message:"Internal Server Error"
-
-        });
-
-
-      }
-
-
-    });
+ 
 
 
     app.get(
@@ -440,10 +358,74 @@ app.put(
 
 
 
+app.get("/users/:email", async (req: Request, res: Response) => {
+  try {
+    const email = req.params.email;
+
+    const user = await usersCollection.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+app.post("/applications", async (req: Request, res: Response) => {
+  console.log("Application Body:", req.body);
+
+  try {
+    const application = {
+      ...req.body,
+      appliedAt: new Date(),
+    };
+
+    const result = await applicationsCollection.insertOne(application);
+
+    console.log(result);
+
+    res.send({
+      success: true,
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).send({
+      success: false,
+    });
+  }
+});
+
+
+app.get(
+  "/applications",
+  async (req: Request, res: Response) => {
+    try {
+      const result =
+        await applicationsCollection.find().toArray();
+
+      res.send(result);
+    } catch {
+      res.status(500).send({
+        success: false,
+      });
+    }
+  }
+);
 
 
 
-    app.patch(
+
+   app.patch(
       "/users/role/:email",
       async(req:Request,res:Response)=>{
 
