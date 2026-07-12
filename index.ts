@@ -406,6 +406,42 @@ app.delete(
 );
 
 
+app.put(
+  "/jobs/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id as string;
+
+      const updatedJob = req.body;
+
+      const result = await jobsCollection.updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: updatedJob,
+        }
+      );
+
+      res.send({
+        success: true,
+        modifiedCount: result.modifiedCount,
+      });
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).send({
+        success: false,
+        message: "Update Failed",
+      });
+    }
+  }
+);
+
+
+
+
+
 
     app.patch(
       "/users/role/:email",
