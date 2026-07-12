@@ -373,12 +373,38 @@ app.get(
 
 
 
+app.delete(
+  "/jobs/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id;
 
+      if (!id || Array.isArray(id)) {
+        return res.status(400).send({
+          success: false,
+          message: "Invalid Job ID",
+        });
+      }
 
+      const result = await jobsCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
 
-    // ==========================
-    // Update User Role
-    // ==========================
+      res.send({
+        success: true,
+        deletedCount: result.deletedCount,
+      });
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).send({
+        success: false,
+        message: "Delete Failed",
+      });
+    }
+  }
+);
+
 
 
     app.patch(
@@ -415,13 +441,8 @@ app.get(
 
         );
 
-
-
         res.send(result);
-
-
-
-      }
+  }
       catch(error){
 
 
@@ -434,13 +455,7 @@ app.get(
 
       }
 
-
-
     });
-
-
-
-
   }
 
   finally{
@@ -451,17 +466,8 @@ app.get(
 
 
 }
-
-
-
 run()
 .catch(console.dir);
-
-
-
-
-
-// Root Route
 
 
 app.get(
@@ -475,12 +481,6 @@ res.send(
 
 
 });
-
-
-
-
-
-// Server Start
 
 
 app.listen(PORT,()=>{
