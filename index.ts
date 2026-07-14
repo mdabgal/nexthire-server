@@ -51,7 +51,7 @@ async function run() {
   const jobsCollection = db.collection("jobs");
 
 const applicationsCollection = db.collection("applications");
-
+const contactCollection = db.collection("contacts");
   try {
 
 
@@ -515,6 +515,69 @@ app.get(
     }
   }
 );
+
+
+
+
+app.post("/contacts", async (req, res) => {
+
+  try {
+
+    const contactData = {
+      ...req.body,
+      createdAt: new Date(),
+    };
+
+
+    const result = await contactCollection.insertOne(contactData);
+
+
+    res.send({
+      success: true,
+      message: "Message sent successfully",
+      insertedId: result.insertedId,
+    });
+
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).send({
+      success: false,
+      message: "Failed to send message",
+    });
+
+  }
+
+});
+
+
+
+app.get("/contacts", async (req, res) => {
+
+  try {
+
+    const result = await contactCollection
+      .find()
+      .sort({
+        createdAt: -1
+      })
+      .toArray();
+
+
+    res.send(result);
+
+
+  } catch(error){
+
+    res.status(500).send({
+      message:"Failed to fetch contacts"
+    });
+
+  }
+
+});
 
 
  app.patch(
