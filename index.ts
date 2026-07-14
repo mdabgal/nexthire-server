@@ -354,7 +354,28 @@ app.delete(
   }
 );
 
+app.get(
+  "/jobs/employer/:email",
+  async (req: Request, res: Response) => {
+    try {
+      const email = req.params.email;
 
+      const jobs = await jobsCollection
+        .find({
+          employerEmail: email,
+        })
+        .toArray();
+
+      res.send(jobs);
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).send({
+        success: false,
+      });
+    }
+  }
+);
 
 
 
